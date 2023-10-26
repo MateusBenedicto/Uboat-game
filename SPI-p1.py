@@ -1,6 +1,5 @@
 import pygame
 from pygame import mixer
-from pygame.locals import *
 import random
 
 #Inicia mixer pra usar sons
@@ -17,16 +16,16 @@ screen_largura = 600
 screen_altura = 800
 
 #Carrega os sons
-explosion_fx = pygame.mixer.Sound("D:\\jogo1\\começo_do_jogo\\explosão\\explosion.wav")
+explosion_fx = pygame.mixer.Sound("explosão/explosion.wav")
 explosion_fx.set_volume(0.15)
 
-explosionA_fx = pygame.mixer.Sound("D:\\jogo1\\começo_do_jogo\\explosão\\explosion2.wav")
+explosionA_fx = pygame.mixer.Sound("explosão/explosion2.wav")
 explosionA_fx.set_volume(0.25)
 
-laser_fx = pygame.mixer.Sound("D:\\jogo1\\começo_do_jogo\\explosão\\laser_fx.wav")
+laser_fx = pygame.mixer.Sound("explosão/laser_fx.wav")
 laser_fx.set_volume(0.10)
 
-theme = pygame.mixer.Sound("D:\\jogo1\\começo_do_jogo\\Musica/TEMA2.mp3")
+theme = pygame.mixer.Sound("Musica/Tema.mp3")
 theme.set_volume(0.20)
 
 theme.play(loops=-1)
@@ -55,7 +54,7 @@ green = (0,255,0)
 white = (255,255,255)
 
 #Carregar imagem de background
-background = pygame.image.load("D:\\jogo1\\começo_do_jogo\\céu.png")
+background = pygame.image.load("céu.png")
 
 def draw_background():
     screen.blit(background, (0, 0))
@@ -71,7 +70,7 @@ def draw_text(text, font, text_cor, x, y):
 class Nave(pygame.sprite.Sprite):
     def __init__(self, x, y, vida):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load("D:\\jogo1\\começo_do_jogo\\ship.png")
+        self.image = pygame.image.load("ship.png")
         self.rect = self.image.get_rect()
         self.image = pygame.transform.rotate(self.image, 180)  
         self.rect.center = [x, y]
@@ -108,7 +107,7 @@ class Nave(pygame.sprite.Sprite):
         pygame.draw.rect(screen, red, (self.rect.x, (self.rect.bottom + 20), self.rect.width, 15))
         if self.vida_restante > 0:
             pygame.draw.rect(screen, green, (self.rect.x, (self.rect.bottom + 20), int(self.rect.width * (self.vida_restante / self.vida_start)), 15))
-        elif self.vida_restante <= 0:
+        if self.vida_restante <= 0:
             explosao = Explosao(self.rect.centerx, self.rect.centery, 3)
             self.kill()
             game_over = -1
@@ -119,7 +118,7 @@ class Nave(pygame.sprite.Sprite):
 class Tiros(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load("D:\\jogo1\\começo_do_jogo\\bullet.png")
+        self.image = pygame.image.load("bullet.png")
         self.rect = self.image.get_rect()
         self.rect.center = [x, y]
 
@@ -137,7 +136,7 @@ class Tiros(pygame.sprite.Sprite):
 class Alien(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load('D:\\jogo1\\começo_do_jogo\\alien' + str(random.randint(1,4)) +".png")
+        self.image = pygame.image.load('alien' + str(random.randint(1,4)) +".png")
         self.rect = self.image.get_rect()
         self.rect.center = [x, y]
         self.move_counter = 0
@@ -155,7 +154,7 @@ class Alien(pygame.sprite.Sprite):
 class A_Tiros(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load("D:\\jogo1\\começo_do_jogo\\alien_bullet.png")
+        self.image = pygame.image.load("alien_bullet.png")
         self.rect = self.image.get_rect()
         self.rect.center = [x, y]
 
@@ -178,7 +177,7 @@ class Explosao(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.images = []
         for num in range (1,6):
-            img = pygame.image.load(f"D:\\jogo1\\começo_do_jogo\\explosão\\exp{num}.png")
+            img = pygame.image.load(f"explosão/exp{num}.png")
             if size == 1:
                 img = pygame.transform.scale(img,(20, 20))
             if size == 2:
@@ -216,7 +215,7 @@ def creat_aliens():
     #Gera os aliens
     for row in range(linha):
         for item in range(coluna):
-            alien = Alien(100 + item * 100, 100 + row *70)
+            alien = Alien(100 + item * 100, 50 + row *70)
             alien_grupo.add(alien)
 
 creat_aliens()
