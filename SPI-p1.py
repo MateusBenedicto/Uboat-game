@@ -20,7 +20,7 @@ explosion_fx = pygame.mixer.Sound("explosão/explosion.wav")
 explosion_fx.set_volume(0.15)
 
 explosionA_fx = pygame.mixer.Sound("explosão/explosion2.wav")
-explosionA_fx.set_volume(0.25)
+explosionA_fx.set_volume(0.50)
 
 laser_fx = pygame.mixer.Sound("explosão/laser_fx.wav")
 laser_fx.set_volume(0.10)
