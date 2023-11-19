@@ -2,48 +2,47 @@ import pygame
 import sys
 import random
 
-# Inicialização do pygame
+# inicialização do pygame
 pygame.mixer.pre_init(44100, -16, 2, 512)
 pygame.mixer.init()
 pygame.init()
 
-# configurações do menu
+#configurações do menu
 clock = pygame.time.Clock()
 fps = 90
 screen_largura = 600
 screen_altura = 800
 
-#Define cores
+# definr cores
 white = (255, 255, 255)
 green = (0, 255, 0)
 red = (255,0,0)
 
-# tela
-screen = pygame.display.set_mode((screen_largura, screen_altura))
-pygame.display.set_caption('Space Invaders')
 
-#Derfine fontes
+#tela
+screen = pygame.display.set_mode((screen_largura, screen_altura))
+pygame.display.set_caption('U-BOAT')
+
+#definir fontes
 font30 = pygame.font.Font("fonte/font.ttf", 30)
 font50 = pygame.font.Font("fonte/font.ttf", 50)
 font40 = pygame.font.SysFont('fonte/font.ttf', 40)
-font60 = pygame.font.SysFont('fonte/font.ttf', 60)    
+font60 = pygame.font.SysFont('fonte/font.ttf', 100)
+        
+menu_theme = pygame.mixer.Sound("Musica/tema-M.mp3")
+menu_theme.set_volume(1.30)
 
-#Carrega os sons
 explosion_fx = pygame.mixer.Sound("explosão/explosion.wav")
 explosion_fx.set_volume(0.15)
 
 explosionA_fx = pygame.mixer.Sound("explosão/explosion2.wav")
 explosionA_fx.set_volume(0.50)
 
-laser_fx = pygame.mixer.Sound("explosão/laser_fx.wav")
-laser_fx.set_volume(0.10)
+missel_fx = pygame.mixer.Sound("explosão/missel_fx.wav")
+missel_fx.set_volume(0.50)
 
 theme = pygame.mixer.Sound("Musica/Tema.mp3")
-theme.set_volume(0.20)
-
-#toca musica no menu
-menu_theme = pygame.mixer.Sound("Musica/tema-M.mp3")
-menu_theme.set_volume(1.30)
+theme.set_volume(1.30)
 menu_theme.play(loops=-1)
 
 class Button:
@@ -67,7 +66,6 @@ class Button:
         if self.rect.collidepoint(pos):
             if self.action:
                 self.action()
-
 # função pra desenhar texto
 def draw_text(text, font, text_color, x, y):
     img = font.render(text, True, text_color)
@@ -77,25 +75,21 @@ def draw_text(text, font, text_color, x, y):
 def start_game():
     global abre_menu
     abre_menu = False
-
-
     
     menu_theme.stop()
-
-
+    
     theme.play(loops=-1)
 
     screen = pygame.display.set_mode((screen_largura, screen_altura))
-    pygame.display.set_caption('Space Invaders')
+    pygame.display.set_caption('U-BOAT')
 
 
 
 
-
-    # define variaveis
+    # Define variaveis
     linha = 5 
     coluna = 5
-    alien_cooldown = 700 
+    enemy_cooldown = 700 
     ultimo_tiro_A = pygame.time.get_ticks()
     countdown = 3
     contagen = pygame.time.get_ticks()
@@ -104,7 +98,7 @@ def start_game():
 
 
     #Carregar imagem de background
-    background = pygame.image.load("céu.png")
+    background = pygame.image.load("Fundo.png")
 
     def draw_background():
         screen.blit(background, (0, 0))
@@ -120,19 +114,21 @@ def start_game():
     class Nave(pygame.sprite.Sprite):
         def __init__(self, x, y, vida):
             pygame.sprite.Sprite.__init__(self)
-            self.image = pygame.image.load("ship1.png")
+            self.image = pygame.image.load("BOAT/BOAT.png")
             self.rect = self.image.get_rect()
-            self.image = pygame.transform.rotate(self.image, 180)  
             self.rect.center = [x, y]
             self.vida_start = vida
             self.vida_restante = vida
             self.ultimo_tiro = pygame.time.get_ticks()
+            self.imagens = { 3: pygame.image.load("BOAT/BOAT.png"),2: pygame.image.load("BOAT/BOAT2.png"), 1: pygame.image.load("BOAT/BOAT.png")}
+            self.image = self.imagens[vida]
+        
 
         def update(self):
-            #Define a velocidade do movimento
-            vel = 5
-            #define um cooldown
-            cooldown = 500 #milisegunddos
+            # Define a velocidade do movimento
+            vel = 4.5
+            #Define um cooldown
+            cooldown = 600 #milisegunddos
             game_over = 0
             
             # Obtém pressionamento de tecla
@@ -145,7 +141,7 @@ def start_game():
             time_now = pygame.time.get_ticks()
             #Define tecla para os tiros
             if keys[pygame.K_SPACE] and time_now - self.ultimo_tiro > cooldown: 
-                laser_fx.play() 
+                missel_fx.play() 
                 tiro = Tiros(self.rect.centerx, self.rect.top)
                 tiros_grupo.add(tiro)
                 self.ultimo_tiro = time_now
@@ -153,6 +149,8 @@ def start_game():
             #mask da colisão da nave, partes invisiveis sem colisão
             self.mask = pygame.mask.from_surface(self.image)
 
+            if self.vida_restante in self.imagens:
+                self.image = self.imagens[self.vida_restante]
             # Faz a barra de vida
             pygame.draw.rect(screen, red, (self.rect.x, (self.rect.bottom + 20), self.rect.width, 15))
             if self.vida_restante > 0:
@@ -160,8 +158,8 @@ def start_game():
             if self.vida_restante <= 0:
                 explosao = Explosao(self.rect.centerx, self.rect.centery, 3)
                 self.kill()
-                game_over = -1
                 explosao_grupo.add(explosao)
+                game_over = -1
             return game_over
 
 
@@ -169,7 +167,7 @@ def start_game():
     class Tiros(pygame.sprite.Sprite):
         def __init__(self, x, y):
             pygame.sprite.Sprite.__init__(self)
-            self.image = pygame.image.load("bullet.png")
+            self.image = pygame.image.load("sprites-tiros/tiro.png")
             self.rect = self.image.get_rect()
             self.rect.center = [x, y]
 
@@ -177,17 +175,20 @@ def start_game():
             self.rect.y -= 5
             if self.rect.bottom < 0 :
                 self.kill()
-            if pygame.sprite.spritecollide(self, alien_grupo, True):
-                self.kill()
+            enemy_colisao = pygame.sprite.spritecollide(self, enemy_grupo, True, pygame.sprite.collide_mask)
+        
+            for enemy in enemy_colisao:
                 explosion_fx.play()
-                explosao = Explosao(self.rect.centerx, self.rect.centery, 2)
+                explosao = Explosao(enemy.rect.centerx, enemy.rect.centery, 2)
                 explosao_grupo.add(explosao)
+                self.kill()
 
-    #Cria class aliens 
-    class Alien(pygame.sprite.Sprite):
+
+    #Cria class enemys 
+    class Enemy(pygame.sprite.Sprite):
         def __init__(self, x, y):
             pygame.sprite.Sprite.__init__(self)
-            self.image = pygame.image.load('alien' + str(random.randint(1,4)) +".png")
+            self.image = pygame.image.load('S-enemys/inimigo' + str(random.randint(1,6)) +".png")
             self.rect = self.image.get_rect()
             self.rect.center = [x, y]
             self.move_counter = 0
@@ -201,16 +202,16 @@ def start_game():
                 self.move_counter *= self.move_direction
 
 
-    #Cria classe alien tiro
-    class A_Tiros(pygame.sprite.Sprite):
+    #Cria classe enemy tiro
+    class E_Tiros(pygame.sprite.Sprite):
         def __init__(self, x, y):
             pygame.sprite.Sprite.__init__(self)
-            self.image = pygame.image.load("alien_bullet.png")
+            self.image = pygame.image.load("sprites-tiros/E_tiro.png")
             self.rect = self.image.get_rect()
             self.rect.center = [x, y]
 
         def update(self):
-            self.rect.y += 2
+            self.rect.y += 2.5
             if self.rect.top > screen_altura :
                 self.kill()
             if pygame.sprite.spritecollide(self, nave_grupo, False, pygame.sprite.collide_mask):
@@ -258,108 +259,108 @@ def start_game():
     # Criando grupos de sprites 
     nave_grupo = pygame.sprite.Group()
     tiros_grupo = pygame.sprite.Group()
-    alien_grupo = pygame.sprite.Group()
-    A_Tiros_grupo = pygame.sprite.Group()
+    enemy_grupo = pygame.sprite.Group()
+    E_Tiros_grupo = pygame.sprite.Group()
     explosao_grupo = pygame.sprite.Group()        
 
-    def creat_aliens():
-        #Gera os aliens
+    def creat_enemys():
+        #Gera os enemys
         for row in range(linha):
             for item in range(coluna):
-                alien = Alien(100 + item * 100, 50 + row *70)
-                alien_grupo.add(alien)
+                enemy = Enemy(100 + item * 100, 50 + row *70)
+                enemy_grupo.add(enemy)
+    def limpa_tela():
+        enemy_grupo.empty()
+        tiros_grupo.empty()
+        E_Tiros_grupo.empty()
+        nave_grupo.empty()
+        
 
-    creat_aliens()
+    creat_enemys()
     # Criar jogador
     nave = Nave(int(screen_largura/2), screen_altura-100, 3)
     nave_grupo.add(nave)
     run = True
+    vitoria = False
     while run:
-
         clock.tick(fps)
 
-        #Coloca o background
         draw_background()
 
         if countdown == 0:
-            #cria balas de aliens aleatórios
-            #conta o tempo atual
             time_now = pygame.time.get_ticks()
-            #Alien atira
-            if time_now - ultimo_tiro_A > alien_cooldown and len(A_Tiros_grupo) < 8 and len(alien_grupo) > 0 :
-                    ataque_alien = random.choice(alien_grupo.sprites())
-                    alien_tiros= A_Tiros(ataque_alien.rect.centerx, ataque_alien.rect.bottom)
-                    A_Tiros_grupo.add(alien_tiros)
-                    ultimo_tiro_A = time_now
 
-            #checa se mata todos os aliens
-            if len(alien_grupo) == 0:
-                game_over = 1
-            
+            if time_now - ultimo_tiro_A > enemy_cooldown and len(E_Tiros_grupo) < 8 and len(enemy_grupo) > 0:
+                ataque_enemy = random.choice(enemy_grupo.sprites())
+                enemy_tiros = E_Tiros(ataque_enemy.rect.centerx, ataque_enemy.rect.bottom)
+                E_Tiros_grupo.add(enemy_tiros)
+                ultimo_tiro_A = time_now
 
-            if game_over ==0:
-                #atualiza posição da nave
+            if not vitoria and len(enemy_grupo) == 0:
+                vitoria = True
+
+            if game_over == 0:
                 game_over = nave.update()
-                #atualiza os tiros 
                 tiros_grupo.update()
-                alien_grupo.update()
-                A_Tiros_grupo.update()
+                enemy_grupo.update()
+                E_Tiros_grupo.update()
+
+                if vitoria:
+                    game_over = 1
 
             if game_over == -1 or game_over == 1:
+                limpa_tela()
+                screen.blit(pygame.image.load("Background.jpg"), (0, 0))
+
                 if game_over == -1:
-                    draw_text('GAME OVER', font60, white
-                , int(screen_largura/2 - 120), int(screen_altura/2))
+                    draw_text('GAME OVER', font60, white, int(screen_largura/2 - 200), int(60))
                 elif game_over == 1:
-                    draw_text('YOU WIN', font60, white
-                , int(screen_largura/2 - 120), int(screen_altura/2))
+                    draw_text('YOU WIN', font60, white, int(screen_largura/2 - 150), int(60))
 
-
-                # Aguarda clique no botão de retorno ao menu
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         run = False
+                        abre_menu = True
+                        menu_theme.play(loops=-1)
 
-
-
+                pygame.display.update()
 
         if countdown > 0:
-            draw_text('SE PREPARE!', font40, white
-        , int(screen_largura/2 - 90), int(screen_altura/2 +50))
-            draw_text(str(countdown), font40, white
-        , int(screen_largura/2 - 7 ), int(screen_altura/2 + 100))
+            draw_text('GET READY!', font40, white, int(screen_largura/2 - 90), int(screen_altura/2 + 50))
+            draw_text(str(countdown), font40, white, int(screen_largura/2 - 7), int(screen_altura/2 + 100))
             count_timer = pygame.time.get_ticks()
-            if count_timer - contagen> 1000:
+
+            if count_timer - contagen > 1000:
                 countdown -= 1
                 contagen = count_timer
 
-        #Atualiza explosao_grupo fora dos ifs pois é animação
         explosao_grupo.update()
-        
-    #Desenha os grupos de sprite
+
         nave_grupo.draw(screen)
         tiros_grupo.draw(screen)
-        alien_grupo.draw(screen)
-        A_Tiros_grupo.draw(screen)
+        enemy_grupo.draw(screen)
+        E_Tiros_grupo.draw(screen)
         explosao_grupo.draw(screen)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+
         pygame.display.update()
 
     pygame.quit()
 
 
-# Função para sair do jogo
+#função para sair do jogo
 def quit_game():
     pygame.quit()
     sys.exit()
 
-# Classe principal do menu
+#Classe principal do menu
 class MainMenu:
     def __init__(self):
-        self.play_button = Button(150, 300, 300, 75, "start.png", "Menu/assets/Play Rect.png",start_game)
-        self.quit_button = Button(150, 450, 300, 75, "exit.png","Menu/assets/Quit Rect.png", quit_game)
+        self.play_button = Button(150, 450, 279, 126, "Botões/play.png", "Botões/play_hover.png",start_game)
+        self.quit_button = Button(170, 600, 240, 126, "Botões/quit.png","Botões/quit_hover.png", quit_game)
 
 
     def update(self):
@@ -376,19 +377,18 @@ class MainMenu:
                     self.quit_button.check_click(event.pos)
 
     def draw(self):
-        # Carrega a imagem de fundo
-        background = pygame.image.load('Menu/assets/Background.png')
+        # Carrega a imagem de fundo menu
+        background = pygame.image.load('Background-Menu.jpg')
         screen.blit(background, (0, 0))  
 
-        draw_text("Main Menu", font50, white
-    , screen_largura // 2, 100)
+        draw_text("Main Menu", font50, white, screen_largura // 2, 100)
         self.play_button.draw()
         self.quit_button.draw()
         pygame.display.update()
 
 abre_menu = True
 
-# Loop principal
+#loop principal
 while True:
     if abre_menu:
         main_menu = MainMenu()
@@ -396,4 +396,3 @@ while True:
             main_menu.update()
             main_menu.draw()
             clock.tick(fps)
-
