@@ -75,6 +75,7 @@ def draw_text(text, font, text_color, x, y):
 def start_game():
     global abre_menu
     abre_menu = False
+    pygame.mouse.set_visible(False)
     
     menu_theme.stop()
     
@@ -381,7 +382,7 @@ class MainMenu:
         background = pygame.image.load('Background-Menu.jpg')
         screen.blit(background, (0, 0))  
 
-        draw_text("Main Menu", font50, white, screen_largura // 2, 100)
+        draw_text("U-BOAT", font50, white, screen_largura // 2, 100)
         self.play_button.draw()
         self.quit_button.draw()
         pygame.display.update()
@@ -392,6 +393,7 @@ abre_menu = True
 while True:
     if abre_menu:
         main_menu = MainMenu()
+        pygame.mouse.set_visible(True)
         while abre_menu:
             main_menu.update()
             main_menu.draw()
